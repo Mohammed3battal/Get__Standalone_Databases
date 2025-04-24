@@ -1,0 +1,16 @@
+-- List standalone databases (not part of any Availability Group)
+SELECT 
+    d.name AS DatabaseName,
+    d.state_desc AS State,
+    d.recovery_model_desc AS RecoveryModel,
+    CASE 
+        WHEN drs.replica_id IS NULL THEN 'Standalone'
+        ELSE 'In Availability Group'
+    END AS Status
+FROM 
+    sys.databases AS d
+LEFT JOIN 
+    sys.dm_hadr_database_replica_states AS drs 
+    ON d.database_id = drs.database_id
+WHERE 
+    drs.replica_id IS NULL;
